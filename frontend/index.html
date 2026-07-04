@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WattWatch</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--teal:#0D9488;--teal-lt:#14B8A6;--teal-bg:#F0FDFA;--teal-dk:#0F766E;--amber:#D97706;--amber-bg:#FEF3C7;--red:#DC2626;--red-bg:#FEF2F2;--green:#16A34A;--green-bg:#DCFCE7;--bg:#F1F5F9;--card:#FFFFFF;--card2:#F8FAFC;--border:#E2E8F0;--text:#1E293B;--muted:#64748B;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;}
+.hidden{display:none!important;}
+/* ── WELCOME PAGE ──────────────────────────────────────────── */
+.welcome-screen{min-height:100vh;background:var(--bg);display:flex;flex-direction:column;}
+.welcome-nav{background:var(--card);border-bottom:1px solid var(--border);height:56px;padding:0 3rem;display:flex;align-items:center;justify-content:space-between;}
+.welcome-nav-logo{font-size:18px;font-weight:800;color:var(--teal);display:flex;align-items:center;gap:8px;}
+.welcome-nav-logo span{font-size:12px;font-weight:400;color:var(--muted);margin-left:8px;}
+.welcome-nav-right{display:flex;gap:10px;}
+.welcome-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3rem 2rem;text-align:center;}
+.welcome-tag{display:inline-block;background:var(--teal-bg);color:var(--teal);border:1px solid var(--teal);font-size:12px;font-weight:700;padding:4px 14px;border-radius:20px;text-transform:uppercase;letter-spacing:.05em;margin-bottom:1.5rem;}
+.welcome-h1{font-size:46px;font-weight:900;line-height:1.1;letter-spacing:-1px;margin-bottom:1rem;color:var(--text);}
+.welcome-h1 em{color:var(--teal);font-style:normal;}
+.welcome-lead{font-size:17px;color:var(--muted);max-width:540px;line-height:1.7;margin:0 auto 2.5rem;}
+.welcome-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:3rem;}
+.welcome-btn-primary{background:var(--teal);color:#fff;font-size:15px;font-weight:700;padding:12px 32px;border-radius:10px;border:none;cursor:pointer;transition:all .15s;}
+.welcome-btn-primary:hover{background:var(--teal-dk);transform:translateY(-1px);}
+.welcome-btn-ghost{background:var(--card);color:var(--text);font-size:15px;font-weight:500;padding:12px 32px;border-radius:10px;border:1px solid var(--border);cursor:pointer;transition:all .15s;}
+.welcome-btn-ghost:hover{border-color:var(--teal);color:var(--teal);}
+.welcome-stats{display:flex;gap:40px;justify-content:center;flex-wrap:wrap;margin-bottom:3rem;}
+.ws-item{text-align:center;}
+.ws-big{font-size:28px;font-weight:900;color:var(--teal);}
+.ws-lbl{font-size:12px;color:var(--muted);margin-top:4px;}
+.welcome-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:860px;width:100%;margin:0 auto;}
+.welcome-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.5rem;text-align:left;}
+.wc-icon{font-size:28px;margin-bottom:10px;}
+.wc-title{font-size:15px;font-weight:700;margin-bottom:6px;}
+.wc-body{font-size:13px;color:var(--muted);line-height:1.6;}
+.welcome-footer{text-align:center;padding:1.5rem;font-size:12px;color:var(--muted);border-top:1px solid var(--border);}
+@media(max-width:700px){.welcome-h1{font-size:30px;}.welcome-cards{grid-template-columns:1fr;}.welcome-stats{gap:24px;}}
+
+.auth-card{background:var(--card);border-radius:16px;padding:2.5rem;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,.3);}
+.auth-logo{font-size:24px;font-weight:800;color:var(--teal);margin-bottom:6px;}
+.auth-logo span{font-size:13px;font-weight:400;color:var(--muted);display:block;}
+.auth-title{font-size:22px;font-weight:700;margin:1.25rem 0 4px;}
+.auth-sub{font-size:13px;color:var(--muted);margin-bottom:1.25rem;}
+.form-group{margin-bottom:14px;}
+.form-group label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em;}
+.form-group input{width:100%;padding:10px 12px;font-size:14px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);outline:none;}
+.form-group input:focus{border-color:var(--teal);}
+.form-error{font-size:12px;color:var(--red);min-height:16px;margin-bottom:8px;}
+.auth-switch{font-size:13px;color:var(--muted);text-align:center;margin-top:1rem;}
+.auth-switch a{color:var(--teal);font-weight:600;cursor:pointer;}
+.btn-primary{background:var(--teal);color:#fff;font-size:14px;font-weight:700;padding:10px 20px;border-radius:8px;border:none;cursor:pointer;width:100%;margin-top:4px;transition:all .15s;}
+.btn-primary:hover{background:var(--teal-dk);}
+.btn-ghost{background:var(--card2);color:var(--text);font-size:13px;font-weight:500;padding:8px 16px;border-radius:8px;border:1px solid var(--border);cursor:pointer;}
+.btn-ghost:hover{border-color:var(--teal);color:var(--teal);}
+.btn-sm{font-size:12px;padding:5px 12px;border-radius:6px;border:1px solid var(--border);background:var(--card2);color:var(--text);cursor:pointer;}
+.btn-sm:hover{border-color:var(--teal);color:var(--teal);}
+.btn-sm.resolve{border-color:var(--green);color:var(--green);}
+.demo-btn{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:8px;padding:8px 16px;font-size:13px;cursor:pointer;margin-top:10px;width:100%;}
+.demo-btn:hover{background:rgba(255,255,255,.2);}
+#app{display:none;}
+nav{background:var(--card);border-bottom:1px solid var(--border);height:56px;padding:0 2rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.nav-logo{font-size:18px;font-weight:800;color:var(--teal);display:flex;align-items:center;gap:8px;}
+.nav-logo span{color:var(--muted);font-weight:400;font-size:12px;margin-left:8px;}
+.nav-tabs{display:flex;gap:4px;}
+.nav-tab{padding:6px 14px;font-size:13px;border-radius:6px;color:var(--muted);border:none;background:none;cursor:pointer;transition:all .15s;}
+.nav-tab:hover{background:var(--card2);color:var(--text);}
+.nav-tab.active{background:var(--teal-bg);color:var(--teal);font-weight:600;}
+.nav-tab .badge{background:var(--red);color:#fff;border-radius:10px;font-size:10px;padding:1px 6px;margin-left:4px;font-weight:700;}
+.nav-right{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted);}
+.page{display:none;padding:2rem;max-width:1200px;margin:0 auto;}
+.page.active{display:block;}
+.section-title{font-size:20px;font-weight:800;margin-bottom:4px;}
+.section-sub{font-size:13px;color:var(--muted);margin-bottom:1.25rem;}
+.panel{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.25rem;}
+.panel-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:1rem;}
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.25rem;}
+.stat-card .big{font-size:30px;font-weight:900;color:var(--teal);}
+.stat-card .lbl{font-size:11px;color:var(--muted);margin-top:4px;}
+.stat-card .sub{font-size:12px;color:var(--muted);margin-top:2px;}
+.dash-grid{display:grid;grid-template-columns:1fr 320px;gap:20px;}
+.chart-wrap{position:relative;height:220px;}
+.chart-wrap-sm{position:relative;height:160px;margin-top:8px;}
+.alert-mini-list{display:flex;flex-direction:column;gap:8px;margin-top:8px;}
+.alert-mini{background:var(--card2);border-radius:8px;padding:10px 12px;border-left:3px solid var(--muted);}
+.alert-mini.waste{border-color:var(--amber);}
+.alert-mini.overload{border-color:var(--red);}
+.alert-mini.tier{border-color:var(--teal);}
+.am-title{font-size:12px;font-weight:700;margin-bottom:3px;}
+.am-body{font-size:11px;color:var(--muted);}
+.am-time{font-size:10px;color:var(--muted);margin-top:3px;}
+.floor-map-layout{display:grid;grid-template-columns:1fr 340px;gap:20px;align-items:start;}
+.floor-row{margin-bottom:16px;}
+.floor-label{font-size:12px;font-weight:700;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em;}
+.rooms-row{display:flex;gap:8px;flex-wrap:wrap;}
+.room-box{width:88px;height:72px;border-radius:8px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;border:2px solid transparent;transition:all .2s;padding:4px;}
+.room-box.green{background:var(--green-bg);border-color:var(--green);}
+.room-box.amber{background:var(--amber-bg);border-color:var(--amber);}
+.room-box.red{background:var(--red-bg);border-color:var(--red);}
+.room-box:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.1);}
+.room-box.selected{box-shadow:0 0 0 3px var(--teal);}
+.rnum{font-size:10px;font-weight:700;color:var(--muted);}
+.rname{font-size:9px;color:var(--text);text-align:center;line-height:1.3;}
+.rkw{font-size:11px;font-weight:700;margin-top:2px;}
+.room-box.green .rkw{color:var(--green);}
+.room-box.amber .rkw{color:var(--amber);}
+.room-box.red .rkw{color:var(--red);}
+.map-legend{display:flex;gap:12px;margin-bottom:1rem;}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);}
+.legend-dot{width:10px;height:10px;border-radius:50%;}
+.room-panel{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.25rem;position:sticky;top:76px;}
+.room-panel-empty{text-align:center;padding:2rem;color:var(--muted);}
+.appliance-list{display:flex;flex-direction:column;gap:8px;margin-top:10px;}
+.appliance-row{background:var(--card2);border-radius:8px;padding:10px 12px;border:1px solid var(--border);}
+.appliance-row.wasteful{border-color:var(--amber);background:var(--amber-bg);}
+.appliance-row.overloaded{border-color:var(--red);background:var(--red-bg);}
+.app-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;}
+.app-name{font-size:13px;font-weight:600;}
+.app-kw{font-size:14px;font-weight:700;color:var(--teal);}
+.app-kw.wkw{color:var(--amber);}
+.app-kw.okw{color:var(--red);}
+.app-bottom{display:flex;justify-content:space-between;align-items:center;}
+.app-rated{font-size:11px;color:var(--muted);}
+.app-flag{font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;}
+.f-ok{background:var(--green-bg);color:var(--green);}
+.f-waste{background:var(--amber-bg);color:var(--amber);}
+.f-over{background:var(--red-bg);color:var(--red);}
+.kw-bar-bg{height:4px;background:var(--border);border-radius:2px;margin-top:6px;}
+.kw-bar-fill{height:100%;border-radius:2px;background:var(--green);transition:width .4s;}
+.kw-bar-fill.warn{background:var(--amber);}
+.kw-bar-fill.danger{background:var(--red);}
+.alert-filters{display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap;}
+.filter-btn{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid var(--border);background:var(--card);cursor:pointer;color:var(--muted);}
+.filter-btn.active{background:var(--teal-bg);color:var(--teal);border-color:var(--teal);}
+.alert-cards{display:flex;flex-direction:column;gap:10px;}
+.alert-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1rem 1.25rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;}
+.alert-card.waste{border-left:4px solid var(--amber);}
+.alert-card.overload{border-left:4px solid var(--red);}
+.alert-card.tier{border-left:4px solid var(--teal);}
+.alert-card.resolved{opacity:.55;}
+.ac-type{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;}
+.ac-type.waste{color:var(--amber);}
+.ac-type.overload{color:var(--red);}
+.ac-type.tier{color:var(--teal);}
+.ac-msg{font-size:13px;font-weight:600;margin-bottom:4px;}
+.ac-loc{font-size:12px;color:var(--muted);}
+.ac-time{font-size:11px;color:var(--muted);margin-top:3px;}
+.trigger-row{display:flex;gap:10px;margin-bottom:1.25rem;flex-wrap:wrap;}
+.trigger-btn{display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:8px;border:1px solid;font-size:12px;font-weight:600;cursor:pointer;}
+.trigger-btn.wt{border-color:var(--amber);background:var(--amber-bg);color:var(--amber);}
+.trigger-btn.ot{border-color:var(--red);background:var(--red-bg);color:var(--red);}
+.trigger-btn.tt{border-color:var(--teal);background:var(--teal-bg);color:var(--teal);}
+.bill-header{background:linear-gradient(135deg,#0F4C2A 0%,var(--teal) 100%);border-radius:14px;padding:1.75rem 2rem;color:#fff;display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+.bill-org{font-size:15px;font-weight:700;margin-bottom:4px;}
+.bill-period{font-size:12px;opacity:.8;}
+.bill-amount{font-size:40px;font-weight:900;line-height:1;}
+.bill-kwh{font-size:13px;opacity:.8;margin-top:4px;}
+.bill-2col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+.tier-track{position:relative;height:12px;background:var(--border);border-radius:6px;margin:8px 0 4px;overflow:visible;}
+.tier-fill{height:100%;border-radius:6px;transition:width .5s,background .4s;}
+.tier-marker{position:absolute;top:-6px;transform:translateX(-50%);transition:left .5s;}
+.tier-marker::after{content:'▼';font-size:12px;color:var(--text);display:block;text-align:center;}
+.tier-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-bottom:6px;}
+.tier-slabs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;}
+.tslab{border-radius:5px;padding:5px 6px;font-size:10px;font-weight:700;}
+.tslab span{font-size:9px;font-weight:400;display:block;margin-top:1px;}
+.t1{background:var(--green-bg);color:var(--green);}
+.t2{background:var(--amber-bg);color:var(--amber);}
+.t3{background:var(--red-bg);color:var(--red);}
+.tier-status{font-size:12px;color:var(--muted);padding:6px 10px;background:var(--card2);border-radius:7px;margin-top:6px;}
+.action-card{background:linear-gradient(135deg,var(--teal-bg) 0%,#EFF6FF 100%);border:1px solid var(--teal);border-radius:12px;padding:1.25rem;display:flex;justify-content:space-between;align-items:center;gap:1rem;margin-top:16px;}
+.ac-tag{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--teal);margin-bottom:5px;}
+.ac-title{font-size:16px;font-weight:800;margin-bottom:5px;}
+.ac-desc{font-size:12px;color:var(--muted);line-height:1.5;}
+.ac-saving{font-size:24px;font-weight:900;color:var(--teal-dk);text-align:right;flex-shrink:0;white-space:nowrap;}
+#toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 16px;font-size:13px;box-shadow:0 8px 24px rgba(0,0,0,.1);transform:translateY(80px);opacity:0;transition:all .3s;z-index:999;}
+#toast.show{transform:translateY(0);opacity:1;}
+.login-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:1000;backdrop-filter:blur(3px);}
+.modal-close-btn{position:absolute;top:12px;right:14px;background:none;border:none;font-size:24px;cursor:pointer;color:var(--muted);line-height:1;padding:0;}
+.modal-close-btn:hover{color:var(--text);}
+@media(max-width:900px){.stat-grid{grid-template-columns:1fr 1fr;}.dash-grid,.floor-map-layout,.bill-2col{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<!-- ── WELCOME PAGE ──────────────────────────────────────── -->
+<div id="welcome-screen" class="welcome-screen">
+  <div class="welcome-nav">
+    <div class="welcome-nav-logo"><img src="gulfwatt-logo.jpeg" alt="GulfWatt" style="height:40px;width:40px;object-fit:contain">GulfWatt <span>Building Energy Intelligence</span></div>
+    <div class="welcome-nav-right">
+      <button class="welcome-btn-ghost" style="padding:7px 20px;font-size:13px" onclick="showLoginModal('login')">Log in</button>
+      <button class="welcome-btn-primary" style="padding:7px 20px;font-size:13px" onclick="showLoginModal('register')">Get started</button>
+    </div>
+  </div>
+
+  <div class="welcome-body">
+    <div class="welcome-tag">Vision 2030 Aligned · Saudi Arabia</div>
+
+    <h1 class="welcome-h1">Every wasted watt<br>has a <em>room number.</em></h1>
+
+    <p class="welcome-lead">GulfWatt is a real-time building energy intelligence dashboard for hospitals, malls, offices and hotels. Know exactly which floor, which room, and which appliance is wasting electricity, before the bill arrives.</p>
+
+    <div class="welcome-btns">
+      <button class="welcome-btn-primary" onclick="showLoginModal('login')">Start monitoring your building →</button>
+      <button class="welcome-btn-ghost" onclick="demoDirectLogin()">Try the demo</button>
+    </div>
+
+    <div class="welcome-stats">
+      <div class="ws-item"><div class="ws-big">SAR 12M</div><div class="ws-lbl">avg hospital annual electricity bill</div></div>
+      <div class="ws-item"><div class="ws-big">20–40%</div><div class="ws-lbl">wasted on devices in empty rooms</div></div>
+      <div class="ws-item"><div class="ws-big">43%</div><div class="ws-lbl">Vision 2030 commercial energy reduction target</div></div>
+    </div>
+
+    <div class="welcome-cards">
+      <div class="welcome-card">
+        <div class="wc-icon">🗺</div>
+        <div class="wc-title">Floor-by-floor visibility</div>
+        <div class="wc-body">An interactive building map shows every room color coded green, amber, or red based on live consumption. Click any room to see every appliance inside it.</div>
+      </div>
+      <div class="welcome-card">
+        <div class="wc-icon">🔔</div>
+        <div class="wc-title">Smart alerts before the bill</div>
+        <div class="wc-body">Automatic alerts for devices running in empty rooms, overloaded zones, and tier 3 pricing breaches — before the monthly invoice arrives.</div>
+      </div>
+      <div class="welcome-card">
+        <div class="wc-icon">📊</div>
+        <div class="wc-title">Bill intelligence</div>
+        <div class="wc-body">Your SEC bill broken down by floor, pricing tier, and a single personalised action to reduce next month's cost. Vision 2030 compliance status included.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="welcome-footer">GulfWatt · Building Energy Intelligence · Saudi Arabia · Aligned with Vision 2030</div>
+</div>
+
+<!-- ── AUTH ──────────────────────────────────────────────────────── -->
+<div id="auth-screen" class="auth-screen hidden">
+  <div style="width:100%;max-width:400px">
+    <div class="auth-card">
+      <div class="auth-logo" style="display:flex;align-items:center;gap:10px"><img src="gulfwatt-logo.jpeg" alt="GulfWatt" style="height:44px;width:44px;object-fit:contain;flex-shrink:0"><div>GulfWatt <span>Building Energy Intelligence</span></div></div>
+      <div id="login-form">
+        <div class="auth-title">Welcome back</div>
+        <div class="auth-sub">Log in to your facility dashboard</div>
+        <div class="form-group"><label>Email</label><input type="email" id="login-email" placeholder="you@hospital.com"></div>
+        <div class="form-group"><label>Password</label><input type="password" id="login-password" placeholder="Your password"></div>
+        <div id="login-error" class="form-error"></div>
+        <button class="btn-primary" onclick="handleLogin()">Log in</button>
+        <p class="auth-switch">No account? <a onclick="switchAuth('register')">Register</a></p>
+        <p class="auth-switch" style="margin-top:6px"><a onclick="showWelcome()">← Back to home</a></p>
+      </div>
+      <div id="register-form" class="hidden">
+        <div class="auth-title">Create account</div>
+        <div class="auth-sub">Set up your facility account</div>
+        <div class="form-group"><label>Name</label><input type="text" id="reg-name" placeholder="Your name"></div>
+        <div class="form-group"><label>Email</label><input type="email" id="reg-email" placeholder="you@hospital.com"></div>
+        <div class="form-group"><label>Password</label><input type="password" id="reg-password" placeholder="At least 6 characters"></div>
+        <div id="register-error" class="form-error"></div>
+        <button class="btn-primary" onclick="handleRegister()">Create account</button>
+        <p class="auth-switch">Already registered? <a onclick="switchAuth('login')">Log in</a></p>
+        <p class="auth-switch" style="margin-top:6px"><a onclick="showWelcome()">← Back to home</a></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── LOGIN MODAL ──────────────────────────────────────────────── -->
+<div id="login-modal" class="login-modal-overlay hidden" onclick="if(event.target===this)closeLoginModal()">
+  <div class="auth-card" style="position:relative;max-height:90vh;overflow-y:auto">
+    <button class="modal-close-btn" onclick="closeLoginModal()">×</button>
+    <div class="auth-logo" style="display:flex;align-items:center;gap:10px">
+      <img src="gulfwatt-logo.jpeg" alt="GulfWatt" style="height:44px;width:44px;object-fit:contain;flex-shrink:0">
+      <div>GulfWatt <span>Building Energy Intelligence</span></div>
+    </div>
+    <div id="modal-login-form">
+      <div class="auth-title">Welcome back</div>
+      <div class="auth-sub">Log in to your facility dashboard</div>
+      <div class="form-group"><label>Email</label><input type="email" id="modal-login-email" placeholder="you@hospital.com"></div>
+      <div class="form-group"><label>Password</label><input type="password" id="modal-login-password" placeholder="Your password"></div>
+      <div id="modal-login-error" class="form-error"></div>
+      <button class="btn-primary" onclick="handleModalLogin()">Log in</button>
+      <p class="auth-switch">No account? <a onclick="switchModalAuth('register')">Register</a></p>
+    </div>
+    <div id="modal-register-form" class="hidden">
+      <div class="auth-title">Create account</div>
+      <div class="auth-sub">Set up your facility account</div>
+      <div class="form-group"><label>Name</label><input type="text" id="modal-reg-name" placeholder="Your name"></div>
+      <div class="form-group"><label>Email</label><input type="email" id="modal-reg-email" placeholder="you@hospital.com"></div>
+      <div class="form-group"><label>Password</label><input type="password" id="modal-reg-password" placeholder="At least 6 characters"></div>
+      <div id="modal-register-error" class="form-error"></div>
+      <button class="btn-primary" onclick="handleModalRegister()">Create account</button>
+      <p class="auth-switch">Already registered? <a onclick="switchModalAuth('login')">Log in</a></p>
+    </div>
+  </div>
+</div>
+
+<div id="app">
+  <nav>
+    <div class="nav-logo"><img src="gulfwatt-logo.jpeg" alt="GulfWatt" style="height:36px;width:36px;object-fit:contain">GulfWatt <span>Energy Intelligence</span></div>
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="showPage('dashboard')">Dashboard</button>
+      <button class="nav-tab" onclick="showPage('floormap')">Floor Map</button>
+      <button class="nav-tab" onclick="showPage('alerts')">Alerts <span class="badge" id="alert-badge">0</span></button>
+      <button class="nav-tab" onclick="showPage('bill')">Bill</button>
+    </div>
+    <div class="nav-right">
+      <span id="user-greeting"></span>
+      <button class="btn-ghost" onclick="goHome()">← Home</button>
+      <button class="btn-ghost" onclick="logout()">Log out</button>
+    </div>
+  </nav>
+
+  <!-- DASHBOARD -->
+  <div id="page-dashboard" class="page active">
+    <div class="section-title">Global Hospital</div>
+    <div class="section-sub">Live overview · Updated every 30 seconds</div>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="big" id="stat-kw">--</div><div class="lbl">kW right now</div><div class="sub">total building draw</div></div>
+      <div class="stat-card"><div class="big" id="stat-sar" style="color:var(--amber)">--</div><div class="lbl">SAR this month</div><div class="sub" id="stat-kwh">-- kWh estimated</div></div>
+      <div class="stat-card"><div class="big" id="stat-alerts" style="color:var(--red)">--</div><div class="lbl">active alerts</div><div class="sub">unresolved</div></div>
+      <div class="stat-card"><div class="big" id="stat-score" style="color:var(--teal)">--</div><div class="lbl">sustainability score</div><div class="sub">out of 100</div></div>
+    </div>
+    <div class="dash-grid">
+      <div class="panel">
+        <div class="panel-title">24-hour consumption (kW)</div>
+        <div class="chart-wrap"><canvas id="dashChart"></canvas></div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">Latest alerts</div>
+        <div class="alert-mini-list" id="dash-alerts"><div style="text-align:center;color:var(--muted);font-size:13px;padding:1rem">Loading...</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FLOOR MAP -->
+  <div id="page-floormap" class="page">
+    <div class="section-title">Floor Map</div>
+    <div class="section-sub">Click any room to see its appliance breakdown and energy status</div>
+    <div class="map-legend">
+      <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div>Normal</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--amber)"></div>Elevated</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--red)"></div>Alert</div>
+    </div>
+    <div class="floor-map-layout">
+      <div id="floor-map-grid"><div style="text-align:center;color:var(--muted);padding:2rem">Loading building blueprint...</div></div>
+      <div class="room-panel" id="room-panel">
+        <div class="room-panel-empty">
+          <div style="font-size:36px;opacity:.4;margin-bottom:8px">🏢</div>
+          <div style="font-size:14px;font-weight:600;margin-bottom:6px">Select a room</div>
+          <div style="font-size:12px">Click any room to see its appliances and energy status.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ALERTS -->
+  <div id="page-alerts" class="page">
+    <div class="section-title">Alerts</div>
+    <div class="section-sub">Waste detection, overload warnings, and tier breach notifications</div>
+    <div class="trigger-row">
+      <div class="trigger-btn wt" onclick="triggerAlert('waste')">⚠️ Trigger waste alert</div>
+      <div class="trigger-btn ot" onclick="triggerAlert('overload')">🔴 Trigger overload</div>
+      <div class="trigger-btn tt" onclick="triggerAlert('tier')">📊 Trigger tier breach</div>
+    </div>
+    <div class="alert-filters">
+      <button class="filter-btn active" onclick="filterAlerts('all',this)">All</button>
+      <button class="filter-btn" onclick="filterAlerts('waste',this)">Waste</button>
+      <button class="filter-btn" onclick="filterAlerts('overload',this)">Overload</button>
+      <button class="filter-btn" onclick="filterAlerts('tier',this)">Tier breach</button>
+      <button class="filter-btn" onclick="filterAlerts('resolved',this)">Resolved</button>
+    </div>
+    <div class="alert-cards" id="alert-cards"><div style="text-align:center;color:var(--muted);padding:2rem">Loading alerts...</div></div>
+  </div>
+
+  <!-- BILL -->
+  <div id="page-bill" class="page">
+    <div class="bill-header">
+      <div>
+        <div class="bill-org">⚡Electricty Company </div>
+        <div class="bill-period">Monthly Statement · <span id="bill-month"></span></div>
+        <div class="bill-period" style="margin-top:2px">Global Hospital · Commercial Tariff</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:11px;opacity:.8;margin-bottom:2px;text-transform:uppercase;letter-spacing:.05em">Amount Due</div>
+        <div class="bill-amount" id="bill-amount">SAR --</div>
+        <div class="bill-kwh" id="bill-kwh">-- kWh this month</div>
+      </div>
+    </div>
+    <div class="bill-2col">
+      <div class="panel">
+        <div class="panel-title">Pricing band</div>
+        <div class="tier-track">
+          <div class="tier-fill" id="tier-fill" style="width:10%;background:var(--green)"></div>
+          <div class="tier-marker" id="tier-marker" style="left:10%"></div>
+        </div>
+        <div class="tier-labels"><span>0</span><span>2000 kWh</span><span>4000 kWh</span><span>6000+</span></div>
+        <div class="tier-slabs">
+          <div class="tslab t1">Tier 1 · 0-2000<span>0.18 SAR/kWh</span></div>
+          <div class="tslab t2">Tier 2 · 2001-4000<span>0.26 SAR/kWh</span></div>
+          <div class="tslab t3">Tier 3 · above 4000<span>0.32 SAR/kWh</span></div>
+        </div>
+        <div class="tier-status" id="tier-status">Calculating...</div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">Consumption by floor</div>
+        <div class="chart-wrap-sm"><canvas id="floorChart"></canvas></div>
+      </div>
+    </div>
+    <div class="action-card">
+      <div>
+        <div class="ac-tag">Recommended action this month</div>
+        <div class="ac-title" id="action-title">Loading...</div>
+        <div class="ac-desc" id="action-desc"></div>
+      </div>
+      <div class="ac-saving" id="action-saving">--</div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const API = '/api';
+const BUILDING_ID = 1;
+
+let currentUser = null, dashChart, floorChart, refreshTimer, currentFilter = 'all';
+
+function getToken(){ return localStorage.getItem('ww_token'); }
+function saveToken(t){ localStorage.setItem('ww_token', t); }
+function saveUser(u){ localStorage.setItem('ww_user', JSON.stringify(u)); }
+function clearAuth(){ localStorage.removeItem('ww_token'); localStorage.removeItem('ww_user'); }
+
+async function apiFetch(path, opts={}){
+  const token = getToken();
+  const headers = {'Content-Type':'application/json', ...(opts.headers||{})};
+  if(token) headers['Authorization'] = 'Bearer ' + token;
+  const res  = await fetch(API + path, {...opts, headers});
+  const data = await res.json();
+  if(!res.ok) throw new Error(data.error || 'API error');
+  return data;
+}
+
+// ── Screen switching ──────────────────────────────────────────
+function showWelcome(){
+  document.getElementById('welcome-screen').style.display = 'flex';
+  document.getElementById('auth-screen').classList.add('hidden');
+}
+
+function showAuthScreen(mode){
+  document.getElementById('welcome-screen').style.display = 'none';
+  document.getElementById('auth-screen').classList.remove('hidden');
+  document.getElementById('auth-screen').style.display = 'flex';
+  switchAuth(mode || 'login');
+}
+
+function switchAuth(mode){
+  document.getElementById('login-form').classList.toggle('hidden', mode!=='login');
+  document.getElementById('register-form').classList.toggle('hidden', mode!=='register');
+}
+
+async function demoDirectLogin(){
+  try { await apiFetch('/auth/register', {method:'POST', body:JSON.stringify({name:'Demo User',email:'demo@gulfwatt.app',password:'demo1234'})}); } catch{}
+  showLoginModal('login');
+  document.getElementById('modal-login-email').value    = 'demo@gulfwatt.app';
+  document.getElementById('modal-login-password').value = 'demo1234';
+  await handleModalLogin();
+}
+
+function showLoginModal(mode){
+  document.getElementById('login-modal').classList.remove('hidden');
+  switchModalAuth(mode||'login');
+}
+function closeLoginModal(){
+  document.getElementById('login-modal').classList.add('hidden');
+}
+function switchModalAuth(mode){
+  document.getElementById('modal-login-form').classList.toggle('hidden',mode!=='login');
+  document.getElementById('modal-register-form').classList.toggle('hidden',mode!=='register');
+}
+async function handleModalLogin(){
+  const email=document.getElementById('modal-login-email').value.trim();
+  const password=document.getElementById('modal-login-password').value;
+  const err=document.getElementById('modal-login-error');
+  err.textContent='';
+  try{
+    const data=await apiFetch('/auth/login',{method:'POST',body:JSON.stringify({email,password})});
+    saveToken(data.token);saveUser(data.user);currentUser=data.user;
+    closeLoginModal();
+    bootApp();
+  }catch(e){err.textContent=e.message;}
+}
+async function handleModalRegister(){
+  const name=document.getElementById('modal-reg-name').value.trim();
+  const email=document.getElementById('modal-reg-email').value.trim();
+  const password=document.getElementById('modal-reg-password').value;
+  const err=document.getElementById('modal-register-error');
+  err.textContent='';
+  try{
+    await apiFetch('/auth/register',{method:'POST',body:JSON.stringify({name,email,password})});
+    showToast('Account created. Please log in.');
+    switchModalAuth('login');
+  }catch(e){err.textContent=e.message;}
+}
+
+async function handleLogin(){
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  const err = document.getElementById('login-error');
+  err.textContent = '';
+  try {
+    const data = await apiFetch('/auth/login', {method:'POST', body:JSON.stringify({email,password})});
+    saveToken(data.token); saveUser(data.user); currentUser = data.user;
+    bootApp();
+  } catch(e){ err.textContent = e.message; }
+}
+
+async function handleRegister(){
+  const name = document.getElementById('reg-name').value.trim();
+  const email = document.getElementById('reg-email').value.trim();
+  const password = document.getElementById('reg-password').value;
+  const err = document.getElementById('register-error');
+  err.textContent = '';
+  try {
+    await apiFetch('/auth/register', {method:'POST', body:JSON.stringify({name,email,password})});
+    showToast('Account created. Please log in.');
+    switchAuth('login');
+  } catch(e){ err.textContent = e.message; }
+}
+
+async function checkSession(){
+  if(!getToken()){ showWelcome(); return; }
+  try {
+    const d = await apiFetch('/auth/me');
+    currentUser = d.user;
+    bootApp();
+  } catch { clearAuth(); showWelcome(); }
+}
+
+function bootApp(){
+  document.getElementById('welcome-screen').style.display = 'none';
+  document.getElementById('auth-screen').classList.add('hidden');
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('user-greeting').textContent = 'Hi, ' + currentUser.name;
+  document.getElementById('bill-month').textContent = new Date().toLocaleDateString('en-SA',{month:'long',year:'numeric'});
+  initDashChart();
+  loadAll();
+  refreshTimer = setInterval(loadAll, 30000);
+}
+
+function showPage(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  const tabs = ['dashboard','floormap','alerts','bill'];
+  const i = tabs.indexOf(name);
+  if(i !== -1) document.querySelectorAll('.nav-tab')[i].classList.add('active');
+  if(name === 'floormap') loadFloorMap();
+  if(name === 'alerts')   loadAlerts();
+  if(name === 'bill')     loadBill();
+}
+
+async function loadAll(){ await loadStats(); await loadDashAlerts(); }
+
+async function loadStats(){
+  try {
+    const d = await apiFetch('/buildings/'+BUILDING_ID+'/stats');
+    document.getElementById('stat-kw').textContent     = d.total_kw;
+    document.getElementById('stat-sar').textContent    = 'SAR ' + Number(d.monthly_sar).toLocaleString();
+    document.getElementById('stat-kwh').textContent    = d.monthly_kwh + ' kWh estimated';
+    document.getElementById('stat-alerts').textContent = d.alert_count;
+    document.getElementById('stat-score').textContent  = d.score;
+    document.getElementById('alert-badge').textContent = d.alert_count;
+  } catch(e){ console.error(e); }
+  try {
+    const d = await apiFetch('/buildings/'+BUILDING_ID+'/chart');
+    if(dashChart){
+      dashChart.data.labels = d.chart.map(p=>p.hour);
+      dashChart.data.datasets[0].data = d.chart.map(p=>p.kw);
+      dashChart.update('none');
+    }
+  } catch(e){ console.error(e); }
+}
+
+function initDashChart(){
+  const ctx = document.getElementById('dashChart').getContext('2d');
+  dashChart = new Chart(ctx,{
+    type:'line',
+    data:{ labels:[], datasets:[{label:'kW',data:[],borderColor:'#0D9488',backgroundColor:'rgba(13,148,136,.08)',borderWidth:2,pointRadius:0,tension:0.4,fill:true}] },
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{ticks:{color:'#64748B',font:{size:10},maxTicksLimit:8},grid:{display:false}},
+        y:{ticks:{color:'#64748B',font:{size:10},callback:v=>v+' kW'},grid:{color:'#E2E8F0'}}
+      }
+    }
+  });
+}
+
+async function loadDashAlerts(){
+  try {
+    const d = await apiFetch('/alerts/'+BUILDING_ID+'?resolved=false');
+    const list = document.getElementById('dash-alerts');
+    if(!d.alerts.length){ list.innerHTML = '<div style="text-align:center;color:var(--muted);font-size:13px;padding:1rem">No active alerts</div>'; return; }
+    list.innerHTML = d.alerts.slice(0,4).map(a=>`
+      <div class="alert-mini ${a.type}">
+        <div class="am-title" style="color:${a.type==='waste'?'var(--amber)':a.type==='overload'?'var(--red)':'var(--teal)'}">${a.type.toUpperCase()}</div>
+        <div class="am-body">${a.message}</div>
+        <div class="am-time">${new Date(a.created_at).toLocaleTimeString()}</div>
+      </div>`).join('');
+  } catch(e){ console.error(e); }
+}
+
+async function loadFloorMap(){
+  try {
+    const d = await apiFetch('/buildings/'+BUILDING_ID);
+    const grid = document.getElementById('floor-map-grid');
+    grid.innerHTML = '';
+    const floors = [...d.building.floors].reverse();
+    floors.forEach(floor=>{
+      const row = document.createElement('div');
+      row.className = 'floor-row';
+      row.innerHTML = `<div class="floor-label">${floor.name}</div><div class="rooms-row" id="rooms-${floor.id}"></div>`;
+      grid.appendChild(row);
+      const roomsEl = document.getElementById('rooms-'+floor.id);
+      floor.rooms.forEach(room=>{
+        const box = document.createElement('div');
+        box.className = 'room-box ' + room.state;
+        box.onclick = (e)=>{ document.querySelectorAll('.room-box').forEach(b=>b.classList.remove('selected')); box.classList.add('selected'); showRoomPanel(room); };
+        box.innerHTML = `<div class="rnum">${room.room_number}</div><div class="rname">${room.name}</div><div class="rkw">${room.total_kw.toFixed(1)} kW</div>`;
+        roomsEl.appendChild(box);
+      });
+    });
+  } catch(e){ document.getElementById('floor-map-grid').innerHTML = '<div style="color:var(--red);padding:1rem">Failed to load. Make sure backend is running and seed.js has been run.</div>'; }
+}
+
+function showRoomPanel(room){
+  const panel = document.getElementById('room-panel');
+  const apps = room.appliances || [];
+  const flagCount = apps.filter(a=>a.wasteful).length;
+  panel.innerHTML = `
+    <div class="panel-title" style="margin-bottom:4px">${room.name}</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:4px">Room ${room.room_number} · ${room.total_kw.toFixed(1)} kW total</div>
+    ${flagCount > 0 ? `<div style="font-size:12px;color:var(--amber);font-weight:600;margin-bottom:10px">⚠ ${flagCount} appliance${flagCount>1?'s':''} flagged as wasteful</div>` : '<div style="font-size:12px;color:var(--green);font-weight:600;margin-bottom:10px">✓ All appliances within normal range</div>'}
+    <div class="appliance-list">
+      ${apps.map(a=>{
+        const pct = Math.min(100, (a.current_kw/(a.rated_kw*1.5))*100);
+        const fc  = a.current_kw > a.rated_kw*1.4 ? 'overloaded' : a.wasteful ? 'wasteful' : '';
+        const kc  = a.current_kw > a.rated_kw*1.4 ? 'okw' : a.wasteful ? 'wkw' : '';
+        const fl  = a.current_kw > a.rated_kw*1.4 ? '<span class="app-flag f-over">Overloaded</span>' : a.wasteful ? '<span class="app-flag f-waste">Wasteful</span>' : '<span class="app-flag f-ok">Normal</span>';
+        const bc  = a.current_kw > a.rated_kw*1.4 ? 'danger' : a.wasteful ? 'warn' : '';
+        return `<div class="appliance-row ${fc}">
+          <div class="app-top"><span class="app-name">${a.name}</span><span class="app-kw ${kc}">${a.current_kw.toFixed(2)} kW</span></div>
+          <div class="app-bottom"><span class="app-rated">Rated: ${a.rated_kw} kW</span>${fl}</div>
+          <div class="kw-bar-bg"><div class="kw-bar-fill ${bc}" style="width:${pct}%"></div></div>
+        </div>`;
+      }).join('')}
+    </div>`;
+}
+
+async function loadAlerts(type, resolved){
+  try {
+    let url = '/alerts/'+BUILDING_ID;
+    const params=[];
+    if(type && type!=='all' && type!=='resolved') params.push('type='+type);
+    params.push(type==='resolved' ? 'resolved=true' : 'resolved=false');
+    url += '?' + params.join('&');
+    const d = await apiFetch(url);
+    const container = document.getElementById('alert-cards');
+    if(!d.alerts.length){ container.innerHTML = '<div style="text-align:center;color:var(--muted);padding:2rem">No alerts found</div>'; return; }
+    container.innerHTML = d.alerts.map(a=>{
+      const room = a.ww_rooms;
+      const loc  = room ? `Floor ${room.ww_floors?.floor_number} · ${room.name}` : 'Building level';
+      return `<div class="alert-card ${a.type} ${a.is_resolved?'resolved':''}">
+        <div>
+          <div class="ac-type ${a.type}">${a.type.toUpperCase()}${a.is_resolved?' · RESOLVED':''}</div>
+          <div class="ac-msg">${a.message}</div>
+          <div class="ac-loc">📍 ${loc}</div>
+          <div class="ac-time">${new Date(a.created_at).toLocaleString()}</div>
+        </div>
+        <div>${!a.is_resolved ? `<button class="btn-sm resolve" onclick="resolveAlert(${a.id})">Resolve</button>` : '<span style="font-size:12px;color:var(--muted)">Resolved</span>'}</div>
+      </div>`;
+    }).join('');
+  } catch(e){ console.error(e); }
+}
+
+function filterAlerts(type, btn){
+  currentFilter = type;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  loadAlerts(type);
+}
+
+async function resolveAlert(id){
+  try { await apiFetch('/alerts/'+id+'/resolve',{method:'PATCH'}); showToast('Alert resolved'); loadAlerts(currentFilter); loadStats(); } catch(e){ showToast('Failed: '+e.message); }
+}
+
+async function triggerAlert(type){
+  const msgs = {
+    waste:    'AC unit running 4 hours in empty admin office. Floor 4, Room 4-02. Estimated waste SAR 180 this week.',
+    overload: 'Electrical panel drawing 340% above baseline. Floor 3, Theatre 1. Possible equipment fault.',
+    tier:     'Monthly consumption projected to reach 4,200 kWh. Tier 3 rate (0.32 SAR/kWh) will apply above 4,000 kWh.'
+  };
+  try { await apiFetch('/alerts/trigger',{method:'POST',body:JSON.stringify({buildingId:BUILDING_ID,type,message:msgs[type]})}); showToast(type+' alert triggered'); loadAlerts(currentFilter); loadStats(); } catch(e){ showToast('Failed: '+e.message); }
+}
+
+async function loadBill(){
+  try {
+    const d = await apiFetch('/readings/bill/'+BUILDING_ID);
+    document.getElementById('bill-amount').textContent = 'SAR ' + Number(d.total_sar).toLocaleString();
+    document.getElementById('bill-kwh').textContent    = d.total_kwh + ' kWh this month';
+    const pct = Math.min(100,(d.total_kwh/6000)*100);
+    const tc  = d.tier===1?'var(--green)':d.tier===2?'var(--amber)':'var(--red)';
+    document.getElementById('tier-fill').style.width      = pct+'%';
+    document.getElementById('tier-fill').style.background = tc;
+    document.getElementById('tier-marker').style.left     = pct+'%';
+    const ts = ['','efficient usage','above average','highest rate applies'];
+    document.getElementById('tier-status').innerHTML = 'You are in <strong>Tier '+d.tier+'</strong> — '+ts[d.tier]+(d.tier===3?' <span style="color:var(--red);font-weight:700">⚠ SEC audit recommended</span>':'');
+    const labels = d.floor_breakdown.map(f=>'Fl.'+f.floor_number);
+    const values = d.floor_breakdown.map(f=>f.kwh);
+    if(floorChart){ floorChart.data.labels=labels; floorChart.data.datasets[0].data=values; floorChart.data.datasets[0].backgroundColor=values.map(v=>v>1000?'rgba(220,38,38,.75)':v>500?'rgba(217,119,6,.75)':'rgba(13,148,136,.75)'); floorChart.update('none'); }
+    else {
+      const ctx = document.getElementById('floorChart').getContext('2d');
+      floorChart = new Chart(ctx,{
+        type:'bar',
+        data:{labels,datasets:[{data:values,backgroundColor:values.map(v=>v>1000?'rgba(220,38,38,.75)':v>500?'rgba(217,119,6,.75)':'rgba(13,148,136,.75)'),borderRadius:5}]},
+        options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.parsed.y.toFixed(1)+' kWh'}}},scales:{x:{ticks:{color:'#64748B',font:{size:10}},grid:{display:false}},y:{ticks:{color:'#64748B',font:{size:10},callback:v=>v+' kWh'},grid:{color:'#E2E8F0'}}}}
+      });
+    }
+    let title,desc,saving;
+    if(d.tier===3){title='Book a free SEC energy audit';desc='Tier 3 buildings qualify for a free on-site energy audit. An engineer identifies the top 3 appliance offenders.';saving='Free service';}
+    else if(d.tier===2){title='Identify and switch off overnight devices';desc='Devices running outside operating hours account for 15 to 25% of commercial bills. WattWatch waste alerts pinpoint exactly which rooms to target.';saving='SAR '+Math.round(d.total_sar*0.18).toLocaleString()+' saved';}
+    else{title='Maintain efficiency and expand monitoring';desc='Your building is in Tier 1. Adding sub-metering to operating theatres would give you room-level data for your two highest-consumption zones.';saving='Vision 2030 compliant';}
+    document.getElementById('action-title').textContent = title;
+    document.getElementById('action-desc').textContent  = desc;
+    document.getElementById('action-saving').textContent = saving;
+  } catch(e){ console.error(e); }
+}
+
+function goHome(){
+  if(refreshTimer) clearInterval(refreshTimer);
+  document.getElementById('app').style.display = 'none';
+  showWelcome();
+}
+
+function logout(){
+  clearAuth();
+  currentUser = null;
+  if(refreshTimer) clearInterval(refreshTimer);
+  document.getElementById('app').style.display = 'none';
+  showWelcome();
+}
+
+function showToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2500); }
+
+checkSession();
+</script>
+</body>
+</html>
